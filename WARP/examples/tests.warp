@@ -1,0 +1,23 @@
+﻿=af2)af>af0)af=lo5@z)"."<lo1^loz=ph"Stacking test"%ph*7&!2)!+A*100>!100)!
+*10+36*15>!!)!)" "
+@d)!^_d
+=te1:te:1
+?0?)" Equal "
+:0:1
+?-1?)" LessThan "
+:2:1
+?1?)" GreaterThan "
+=te6#te3*te
+?0?)" NoRemainder "
+=te7#te3:te:0*te
+?1?)" Remainder "
+:"+":"-")!
+:"+":"+")!
+)"Arrays\n"
++A
+{17
+(!
+*65
+}17
+{17
+(!

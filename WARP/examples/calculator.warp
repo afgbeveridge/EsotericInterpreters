@@ -1,0 +1,4 @@
+﻿+A)"WARP simple calculator: Enter q (as operator) to quit, c (as operator) to clear\n"
+@l)"Enter operator: ",l=op!:op:"q"?0?^.e:op:"c"?0?^.c
+)"Enter operand: ",l=nu!:op:"+"?0?>acnu:op:"-"?0?<acnu:op:"*"?0?&acnu:op:"/"?0?$acnu
+^.p@c=ac0@p)ac)"\n"^.l@e
