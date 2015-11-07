@@ -1,3 +1,15 @@
+An interpreter suite for the following esoteric languages, written in C# 4:
+
+* FALSE language (http://strlen.com/false/false.txt)
+* BrainFuck (recent, stable) (http://en.wikipedia.org/wiki/Brainfuck)
+* Befunge-93 (minor defects present) (http://catseye.tc/projects/befunge93/doc/befunge93.html)
+* WARP (specification at [url:http://esolangs.org/wiki/WARP])
+
+Need to move this codeplex project to a more suitable resting place.
+
+Site maintainers blog: 
+[url:http://tb-it.blogspot.com/]
+
 Please be aware that this software is released under an MIT license - see the end of this file for details.
 
 
