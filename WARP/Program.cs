@@ -28,7 +28,8 @@ namespace WARP {
 		private const string Message = "WARP interpreter v 2.0: (c) 2013 Tony Beveridge, released under the MIT license";
 
 		static void Main(string[] args) {
-			new CommandLineExecutor<SimpleSourceCode, PropertyBasedExecutionEnvironment>().Execute(Assembly.GetExecutingAssembly(), Message, args,
+            CommandBuilder.Initialize(new ConsoleIOWrapper());
+            new CommandLineExecutor<SimpleSourceCode, PropertyBasedExecutionEnvironment>().Execute(Assembly.GetExecutingAssembly(), Message, args,
 				interp => {
 					PropertyBasedExecutionEnvironment.ScratchPad[Constants.RASName] =
 						new RandomAccessStack<WARPObject> { MaximumSize = Configuration.ConfigurationFor<int>("rasSize") };

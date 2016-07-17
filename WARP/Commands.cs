@@ -191,12 +191,13 @@ namespace WARP {
 
 	internal class WARPInputCommand : WARPCommand {
 
+        internal static SharedObjects.Esoterica.IOWrapper InteractionWrapper;
 		internal static readonly IEnumerable<string> Options = new[] { "l", "c" };
 
 		internal override void Execute(InterpreterState state, SourceCode code, BaseInterpreterStack stack) {
 			var style = stack.Pop<WARPObject>().AsString();
 			ExecutionSupport.Assert(Options.Contains(style), string.Concat("Invalid argument for ',' - ", style));
-			stack.Push(style == "l" ? new WARPObject(Console.ReadLine() ?? "0") : new WARPObject(Convert.ToChar(Console.Read())));
+			stack.Push(style == "l" ? new WARPObject(InteractionWrapper.ReadString("0").Result) : new WARPObject(Convert.ToChar(InteractionWrapper.ReadCharacter().Result)));
 		}
 	}
 

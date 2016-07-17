@@ -28,6 +28,7 @@ namespace BrainFuckInterpreter {
 		private const int StandardMaxCellCount = 30000;
 
 		static void Main(string[] args) {
+            CommandBuilder.Initialize(new ConsoleIOWrapper());
 			new CommandLineExecutor<SimpleSourceCode, RandomAccessStack<CanonicalNumber>>().Execute(Assembly.GetExecutingAssembly(), Message, args,
 				interp => interp.State.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>().MaximumSize = StandardMaxCellCount
 			);

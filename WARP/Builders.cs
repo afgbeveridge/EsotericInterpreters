@@ -62,9 +62,10 @@ namespace WARP {
 		private static Regex BoundVariableOrStackExpression;
 		private static Regex ObjectReference;
 		
-		static CommandBuilder() {
+		internal static void Initialize(SharedObjects.Esoterica.IOWrapper wrapper) {
 			CreateExpressions();
-			mCommands["="] = Builder.Create((state, source, stack) => Get<WARPAssignmentCommand>().Execute(state, source, stack), BoundVariableExpression);
+            WARPInputCommand.InteractionWrapper = wrapper;
+            mCommands["="] = Builder.Create((state, source, stack) => Get<WARPAssignmentCommand>().Execute(state, source, stack), BoundVariableExpression);
 			mCommands[Constants.KeyWords.Addition] = Builder.Create((state, source, stack) => CreateMathProcessor((cur, expr) => cur + expr.AsNumeric(), Constants.KeyWords.Addition).Execute(state, source, stack), BoundVariableOrStackExpression);
 			mCommands[Constants.KeyWords.Subtraction] = Builder.Create((state, source, stack) => CreateMathProcessor((cur, expr) => cur - expr.AsNumeric(), Constants.KeyWords.Subtraction).Execute(state, source, stack), BoundVariableOrStackExpression);
 			mCommands[Constants.KeyWords.Multiplication] = Builder.Create((state, source, stack) => CreateMathProcessor((cur, expr) => cur * expr.AsNumeric(1L), Constants.KeyWords.Multiplication).Execute(state, source, stack), BoundVariableOrStackExpression);
@@ -73,11 +74,11 @@ namespace WARP {
 			mCommands[Constants.KeyWords.Pop] = Builder.Create((state, source, stack) => stack.Pop());
 			mCommands["*"] = Builder.Create((state, source, stack) => stack.Push(stack.Pop<WARPObject>()), Expression);
 			mCommands[";"] = Builder.Create((state, source, stack) => stack.Duplicate());
-			mCommands["+"] = Builder.Create((state, source, stack) => WARPObject.CurrentRadix = System.Convert.ToInt32(stack.Pop<WARPObject>().AsNumeric()),
+			mCommands["+"] = Builder.Create((state, source, stack) => WARPObject.CurrentRadix = Convert.ToInt32(stack.Pop<WARPObject>().AsNumeric()),
 				RegexBuilder.New().StartCaptureGroup("expr").AddCharacterClass("0-9A-Z").OneOrMore().EndCaptureGroup().EndMatching().ToRegex());
 			mCommands["]"] = Builder.Create((state, source, stack) => Get<WARPPopPushCommand>().Execute(state, source, stack), Expression);
-			mCommands[")"] = Builder.Create((state, source, stack) => Console.Write(stack.Pop<WARPObject>().AsString().Replace("\\n", System.Environment.NewLine)), Expression);
-			mCommands["("] = Builder.Create((state, source, stack) => Console.Write(stack.Pop<WARPObject>().AsCharacter()), Expression);
+			mCommands[")"] = Builder.Create((state, source, stack) => wrapper.Write(stack.Pop<WARPObject>().AsString().Replace("\\n", System.Environment.NewLine)), Expression);
+			mCommands["("] = Builder.Create((state, source, stack) => wrapper.Write(stack.Pop<WARPObject>().AsCharacter()), Expression);
 			mCommands[","] = Builder.Create((state, source, stack) => Get<WARPInputCommand>().Execute(state, source, stack),
 				RegexBuilder.New().StartsWith().StartCaptureGroup("var").OneFrom(WARPInputCommand.Options).EndCaptureGroup().EndMatching().ToRegex());
 			mCommands["|"] = Builder.Create((state, source, stack) => state.PopExecutionEnvironment<PropertyBasedExecutionEnvironment>());

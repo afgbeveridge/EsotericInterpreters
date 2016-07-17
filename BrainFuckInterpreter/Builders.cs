@@ -26,13 +26,13 @@ namespace BrainFuckInterpreter {
 		private const char StartConditional = '[';
 		private const char EndConditional = ']';
 
-		static CommandBuilder() {
+		internal static void Initialize(SharedObjects.Esoterica.IOWrapper wrapper) {
 			mCommands['>'] = (state, source, stack) => stack.Advance();
 			mCommands['<'] = (state, source, stack) => stack.Retreat();
 			mCommands['+'] = (state, source, stack) => stack.CurrentCell = stack.CurrentCell + new CanonicalNumber(1);
 			mCommands['-'] = (state, source, stack) => stack.CurrentCell = stack.CurrentCell + new CanonicalNumber(-1);
-			mCommands['.'] = (state, source, stack) => Console.Write(new String(Convert.ToChar(stack.CurrentCell.Value), 1));
-			mCommands[','] = (state, source, stack) => stack.CurrentCell.Value = Console.Read();
+			mCommands['.'] = (state, source, stack) => wrapper.Write(new string(Convert.ToChar(stack.CurrentCell.Value), 1));
+			mCommands[','] = (state, source, stack) => stack.CurrentCell.Value = wrapper.ReadCharacter().Result;
 			mCommands[StartConditional] = (state, source, stack) => {
 				if (stack.CurrentCell.Value > 0) 
 					source.Advance();

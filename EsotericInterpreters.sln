@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FalseInterpreter", "FalseInterpreter\FalseInterpreter.csproj", "{2B2D0BD5-F86D-4ECD-8CF5-9E8434D4D8CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interpreter.Abstractions", "Interpreter.Abstractions\Interpreter.Abstractions.csproj", "{DCE8B622-081E-4617-980C-07C89988393E}"
@@ -22,34 +24,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WARP.Tests", "WARP.Tests\WARP.Tests.csproj", "{AC5CF33F-5FDF-42A7-A13F-4AD3F1377469}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "..\Common\Shared\Shared.csproj", "{0AF96056-4218-4C0D-95A3-39E555A77A22}"
+EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs35
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = FalseInterpreter\\FalseInterpreter.csproj
-		SccProjectName1 = FalseInterpreter
-		SccLocalPath1 = FalseInterpreter
-		SccProjectUniqueName2 = Interpreter.Abstractions\\Interpreter.Abstractions.csproj
-		SccProjectName2 = Interpreter.Abstractions
-		SccLocalPath2 = Interpreter.Abstractions
-		SccProjectUniqueName3 = BrainFuckInterpreter\\BrainFuckInterpreter.csproj
-		SccProjectName3 = BrainFuckInterpreter
-		SccLocalPath3 = BrainFuckInterpreter
-		SccProjectUniqueName4 = Befunge-93\\Befunge-93.csproj
-		SccProjectName4 = Befunge-93
-		SccLocalPath4 = Befunge-93
-		SccProjectUniqueName5 = WARP\\WARP.csproj
-		SccProjectName5 = WARP
-		SccLocalPath5 = WARP
-		SccProjectUniqueName6 = WARP.Tests\\WARP.Tests.csproj
-		SccProjectName6 = WARP.Tests
-		SccLocalPath6 = WARP.Tests
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = EsotericInterpreters.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -119,8 +96,23 @@ Global
 		{AC5CF33F-5FDF-42A7-A13F-4AD3F1377469}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{AC5CF33F-5FDF-42A7-A13F-4AD3F1377469}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{AC5CF33F-5FDF-42A7-A13F-4AD3F1377469}.Release|x86.ActiveCfg = Release|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Debug|x86.Build.0 = Debug|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Release|x86.ActiveCfg = Release|Any CPU
+		{0AF96056-4218-4C0D-95A3-39E555A77A22}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = EsotericInterpreters.vsmdi
 	EndGlobalSection
 EndGlobal
