@@ -53,7 +53,7 @@ namespace WARP {
 			return cmd;
 		}
 
-		protected static PropertyBasedExecutionEnvironment Environment(InterpreterState state) {
+		protected PropertyBasedExecutionEnvironment Environment(InterpreterState state) {
 			return state.GetExecutionEnvironment<PropertyBasedExecutionEnvironment>();
 		}
 
@@ -72,7 +72,7 @@ namespace WARP {
 				if (!env.HasScratchPadEntry(result.Expression.AsString()))
 					FindAllLabels(state);
 				ExecutionSupport.Assert(env.HasScratchPadEntry(result.Expression.AsString()), string.Concat("Unknown label: ", result.Expression.AsString()));
-				source.SourcePosition = ((MutableTuple<int>)PropertyBasedExecutionEnvironment.ScratchPad[result.Expression.AsString()]).Copy();
+				source.SourcePosition = ((MutableTuple<int>)Environment(state).ScratchPad[result.Expression.AsString()]).Copy();
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace WARP {
 		internal static Regex SimpleLabel;
 
 		internal override void Execute(InterpreterState state, SourceCode source, BaseInterpreterStack stack) {
-			PropertyBasedExecutionEnvironment.ScratchPad[stack.Pop<WARPObject>().AsString()] = source.SourcePosition.Copy();
+            Environment(state).ScratchPad[stack.Pop<WARPObject>().AsString()] = source.SourcePosition.Copy();
 		}
 
 	}
@@ -133,7 +133,7 @@ namespace WARP {
 		internal override void Execute(InterpreterState state, SourceCode code, BaseInterpreterStack stack) {
 			var lhs = stack.Pop<WARPObject>().AsNumeric();
 			var rhs = stack.Pop<WARPObject>().AsNumeric();
-			dynamic res = CommandBuilder.KeyAndBuilder(state);
+			dynamic res = Environment(state).ScratchPadAs<CommandBuilder>(Constants.Builder).KeyAndBuilder(state);
 			CMD cmd = Gather(state, res.Key, res.Builder);
 			ExecutionSupport.Emit(() => string.Concat("Comparison: ", lhs, " == ", rhs, "?"));
 			if (lhs == rhs)
@@ -148,11 +148,11 @@ namespace WARP {
 			PropertyBasedExecutionEnvironment env = Environment(state);
 			if (!env.HasScratchPadEntry(Constants.KeyWords.Comparison)) {
 				stack.Push(obj);
-				PropertyBasedExecutionEnvironment.ScratchPad[Constants.KeyWords.Comparison] = String.Empty;
+                Environment(state).ScratchPad[Constants.KeyWords.Comparison] = String.Empty;
 			}
 			else {
 				var lhs = stack.Pop<WARPObject>();
-				PropertyBasedExecutionEnvironment.ScratchPad.Remove(Constants.KeyWords.Comparison);
+                Environment(state).ScratchPad.Remove(Constants.KeyWords.Comparison);
 				var bothNumeric = lhs.IsNumeric && obj.IsNumeric;
 				Func<int> cmp = () => {
 					var f = lhs.AsNumeric(); var s = obj.AsNumeric();
@@ -167,7 +167,7 @@ namespace WARP {
 
 		internal override void Execute(InterpreterState state, SourceCode code, BaseInterpreterStack stack) {
 			var val = ((WARPObject)Environment(state)[stack.Pop<WARPObject>().AsString()]).AsString();
-			state.AddExecutionEnvironment<PropertyBasedExecutionEnvironment>();
+			state.AddExecutionEnvironment(Environment(state).Clone());
 			val.Reverse().ToList().ForEach(c => Environment(state).Push(new WARPObject(new string(new[] { c }))));
 		}
 	}
@@ -181,7 +181,7 @@ namespace WARP {
 		}
 
 		internal override void Execute(InterpreterState state, SourceCode code, BaseInterpreterStack stack) {
-			RandomAccessStack<WARPObject> st = PropertyBasedExecutionEnvironment.ScratchPad[Constants.RASName] as RandomAccessStack<WARPObject>;
+			RandomAccessStack<WARPObject> st = Environment(state).ScratchPad[Constants.RASName] as RandomAccessStack<WARPObject>;
 			st.Set((int)stack.Pop<WARPObject>().AsNumeric());
 			Action(st, stack);
 		}
@@ -191,8 +191,15 @@ namespace WARP {
 
 	internal class WARPInputCommand : WARPCommand {
 
+        [ThreadStatic]
         internal static SharedObjects.Esoterica.IOWrapper InteractionWrapper;
+
 		internal static readonly IEnumerable<string> Options = new[] { "l", "c" };
+
+        internal WARPInputCommand WithWrapper(SharedObjects.Esoterica.IOWrapper w) {
+            InteractionWrapper = w;
+            return this;
+        }
 
 		internal override void Execute(InterpreterState state, SourceCode code, BaseInterpreterStack stack) {
 			var style = stack.Pop<WARPObject>().AsString();

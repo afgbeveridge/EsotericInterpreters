@@ -68,10 +68,9 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 						result = InterpreterResult.BreakpointReached;
 				}
 			}
-			catch (Exception) {
-				if (InterpreterEvent != null) 
-					InterpreterEvent(this, new InterpreterEventArgs<TSourceType, TExeType> { ActiveInterpreter = this, ErrorState = true });
-				throw;
+			catch (Exception ex) {
+                InterpreterEvent?.Invoke(this, new InterpreterEventArgs<TSourceType, TExeType> { ActiveInterpreter = this, ErrorState = true, Message = ex.ToString() });
+                throw;
 			}
 			return result;
 		}
@@ -103,7 +102,8 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 
 		private void DetectInterpreters(Assembly ass) {
 			mInterpreters.AddRange(ass.GetTypes().
-				Where(t => t.GetInterface(typeof(ITrivialInterpreterBase<TSourceType, TExeType>).Name) != null && !t.IsAbstract).Select(t => Activator.CreateInstance(t) as ITrivialInterpreterBase<TSourceType, TExeType>));
+				Where(t => t.GetTypeInfo().GetInterface(typeof(ITrivialInterpreterBase<TSourceType, TExeType>).Name) != null && !t.GetTypeInfo().IsAbstract) 
+                .Select(t => Activator.CreateInstance(t) as ITrivialInterpreterBase<TSourceType, TExeType>));
 		}
 
 		private void AppendGeneralInterpreters() { 
@@ -115,6 +115,7 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 		where TExeType : BaseInterpreterStack, new() {
 		public Interpreter<TSourceType, TExeType> ActiveInterpreter { get; set; }
 		public bool ErrorState { get; set; }
+        public string Message { get; set; }
 	}
 
 	public interface ITrivialInterpreterBase<TSourceType, TExeType>

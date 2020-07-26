@@ -14,25 +14,30 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using SharedObjects.Esoterica;
 using com.complexomnibus.esoteric.interpreter.abstractions;
 
 namespace BrainFuckInterpreter {
 
 	public class CommandBuilder : TrivialInterpreterBase<SimpleSourceCode, RandomAccessStack<CanonicalNumber>> {
 
-		private static Dictionary<char, Action<InterpreterState, SimpleSourceCode, RandomAccessStack<CanonicalNumber>>> mCommands = new Dictionary<char, Action<InterpreterState, SimpleSourceCode, RandomAccessStack<CanonicalNumber>>>();
+		private Dictionary<char, Action<InterpreterState, SimpleSourceCode, RandomAccessStack<CanonicalNumber>>> mCommands = new Dictionary<char, Action<InterpreterState, SimpleSourceCode, RandomAccessStack<CanonicalNumber>>>();
 		private const char StartConditional = '[';
 		private const char EndConditional = ']';
 
-		internal static void Initialize(SharedObjects.Esoterica.IOWrapper wrapper) {
+        public CommandBuilder() {
+            Initialize();
+        }
+
+        public IOWrapper Wrapper { get; set; }
+
+        internal void Initialize() {
 			mCommands['>'] = (state, source, stack) => stack.Advance();
 			mCommands['<'] = (state, source, stack) => stack.Retreat();
 			mCommands['+'] = (state, source, stack) => stack.CurrentCell = stack.CurrentCell + new CanonicalNumber(1);
 			mCommands['-'] = (state, source, stack) => stack.CurrentCell = stack.CurrentCell + new CanonicalNumber(-1);
-			mCommands['.'] = (state, source, stack) => wrapper.Write(new string(Convert.ToChar(stack.CurrentCell.Value), 1));
-			mCommands[','] = (state, source, stack) => stack.CurrentCell.Value = wrapper.ReadCharacter().Result;
+			mCommands['.'] = (state, source, stack) => Wrapper.Write(new string(Convert.ToChar(stack.CurrentCell.Value), 1));
+			mCommands[','] = (state, source, stack) => stack.CurrentCell.Value = Wrapper.ReadCharacter().Result;
 			mCommands[StartConditional] = (state, source, stack) => {
 				if (stack.CurrentCell.Value > 0) 
 					source.Advance();
@@ -50,12 +55,14 @@ namespace BrainFuckInterpreter {
 			return Applicable(state.BaseSourceCode.CurrentCharacter());
 		}
 
-		public static bool Applicable(char current) {
+		public bool Applicable(char current) {
 			return mCommands.ContainsKey(current);
 		}
 
 		public override BaseObject Gather(InterpreterState state) {
-			char key = state.BaseSourceCode.CurrentCharacter();
+            state.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>().ScratchPad[Constants.Builder] = this;
+            Wrapper = state.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>().ScratchPadAs<IOWrapper>(Constants.CurrentBase);
+            char key = state.BaseSourceCode.CurrentCharacter();
 			if (key != StartConditional && key != EndConditional)
 				state.BaseSourceCode.Advance();
 			ExecutionSupport.Emit(() => string.Format("Command created: {0}, source position: {1}", key, state.GetSource<SourceCode>().SourcePosition));
@@ -67,7 +74,8 @@ namespace BrainFuckInterpreter {
 	public class UnknownCommandSkipper : TrivialInterpreterBase<SimpleSourceCode, RandomAccessStack<CanonicalNumber>> {
 
 		public override bool Applicable(InterpreterState state) {
-			return !CommandBuilder.Applicable(state.BaseSourceCode.CurrentCharacter());
+            var bldr = state.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>().ScratchPadAs<CommandBuilder>(Constants.Builder);
+            return !bldr.Applicable(state.BaseSourceCode.CurrentCharacter());
 		}
 
 		public override BaseObject Gather(InterpreterState state) {

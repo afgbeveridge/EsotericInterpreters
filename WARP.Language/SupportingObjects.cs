@@ -61,7 +61,7 @@ namespace WARP {
 
 	}
 
-	internal class WARPObject : BaseObject {
+	public class WARPObject : BaseObject {
 
 		internal static int CurrentRadix = FlexibleNumeralSystem.StandardRadix;
 

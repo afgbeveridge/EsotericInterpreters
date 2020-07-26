@@ -61,12 +61,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Shadow Include="Test References\WARP.accessor" />
+    <None Include="Test References\WARP.accessor" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Interpreter.Abstractions\Interpreter.Abstractions.csproj">
       <Project>{DCE8B622-081E-4617-980C-07C89988393E}</Project>
       <Name>Interpreter.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WARP.Language\WARP.Language.csproj">
+      <Project>{9d54a052-00aa-4695-b57c-a25030f14d95}</Project>
+      <Name>WARP.Language</Name>
     </ProjectReference>
     <ProjectReference Include="..\WARP\WARP.csproj">
       <Project>{8DD18DE6-91AF-431A-AF9D-9DEB6836A727}</Project>

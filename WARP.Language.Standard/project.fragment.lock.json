@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "exports": {
+    "Shared/1.0.0": {
+      "type": "project",
+      "framework": ".NETFramework,Version=v4.6",
+      "compile": {
+        "bin/Debug/Shared.dll": {}
+      },
+      "runtime": {
+        "bin/Debug/Shared.dll": {}
+      }
+    }
+  }
+}

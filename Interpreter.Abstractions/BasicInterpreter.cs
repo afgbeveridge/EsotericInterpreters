@@ -13,31 +13,35 @@
 //============================================================================================================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Reflection;
-using com.complexomnibus.esoteric.interpreter.abstractions;
 
-namespace BrainFuckInterpreter {
+namespace com.complexomnibus.esoteric.interpreter.abstractions {
 
-	public class Program {
+    public class BasicInterpreter<TSourceType, TExeType>
+        where TSourceType : SourceCode, new()
+        where TExeType : BaseInterpreterStack, new() {
 
-		private const string Message = "BrainFuck interpreter v 0.0: (c) 2011-2013 Tony Beveridge, released under the MIT license";
-		private const int StandardMaxCellCount = 30000;
+        public void Execute(Assembly ass, string[] src, Action<Interpreter<TSourceType, TExeType>> preExecution = null) {
+            try {
+                ExecutionSupport.Assert(src != null, "Source is required for execution");
+                Interpreter = new Interpreter<TSourceType, TExeType>(ass);
+                preExecution?.Invoke(Interpreter);
+                Interpreter.AcceptSource(src);
+                Process();
+            }
+            catch (Exception) {
+                throw;
+            }
+        }
 
-		static void Main(string[] args) {
-			new CommandLineExecutor<SimpleSourceCode, RandomAccessStack<CanonicalNumber>>()
-                .Execute(typeof(CommandBuilder).Assembly, 
-                Message, 
-                args,
-				interp => {
-                    var env = interp.State.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>();
-                    env.ScratchPad[Constants.CurrentBase] = new ConsoleIOWrapper();
-                    interp.State.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>().MaximumSize = StandardMaxCellCount;
-                }
-			);
-		}
-	}
+        private Interpreter<TSourceType, TExeType> Interpreter { get; set; }
+
+        private void Process() {
+            InterpreterResult result = InterpreterResult.InFlight;
+            while (result != InterpreterResult.Complete) {
+                result = Interpreter.Execute();
+            }
+        }
+    }
+
 }

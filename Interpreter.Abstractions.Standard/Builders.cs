@@ -16,28 +16,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO;
-using System.Reflection;
-using com.complexomnibus.esoteric.interpreter.abstractions;
+//using System.Configuration;
 
-namespace BrainFuckInterpreter {
+namespace com.complexomnibus.esoteric.interpreter.abstractions {
 
-	public class Program {
+	public class BasicNumberBuilder<TSourceType, TExeType> : TrivialInterpreterBase<TSourceType, TExeType>
+		where TSourceType : SourceCode, new()
+		where TExeType : BaseInterpreterStack, new() {
 
-		private const string Message = "BrainFuck interpreter v 0.0: (c) 2011-2013 Tony Beveridge, released under the MIT license";
-		private const int StandardMaxCellCount = 30000;
+		private const string NumberConfiguration = "maxNumberLength";
+		private int MaxNumberLength { get; set; }
 
-		static void Main(string[] args) {
-			new CommandLineExecutor<SimpleSourceCode, RandomAccessStack<CanonicalNumber>>()
-                .Execute(typeof(CommandBuilder).Assembly, 
-                Message, 
-                args,
-				interp => {
-                    var env = interp.State.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>();
-                    env.ScratchPad[Constants.CurrentBase] = new ConsoleIOWrapper();
-                    interp.State.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>().MaximumSize = StandardMaxCellCount;
-                }
-			);
+		public override bool Applicable(InterpreterState state) {
+			return char.IsDigit(state.BaseSourceCode.Current().First());
+		}
+
+		private string Value { get; set; }
+
+		public override BaseObject Gather(InterpreterState state) {
+			CheckConfiguration(state);
+			Value = String.Empty;
+			while (state.BaseSourceCode.More() && Applicable(state) && Value.Length < MaxNumberLength) {
+				Value = Value + state.BaseSourceCode.Current();
+				state.BaseSourceCode.Advance();
+			}
+			ExecutionSupport.Emit(() => string.Format("Number created: {0}", Value));
+			return new CanonicalNumber(int.Parse(Value));
+		}
+
+		private void CheckConfiguration(InterpreterState state) {
+			if (MaxNumberLength == 0) 
+				MaxNumberLength = Configuration.ConfigurationFor<int>(NumberConfiguration, int.MaxValue);
 		}
 	}
+
 }

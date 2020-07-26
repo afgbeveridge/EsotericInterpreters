@@ -22,11 +22,12 @@ using System.Reflection;
 using System.Configuration;
 using com.complexomnibus.esoteric.interpreter.abstractions;
 using System.Dynamic;
+using SharedObjects.Esoterica;
 using CMD = com.complexomnibus.esoteric.interpreter.abstractions.ActionCommand<com.complexomnibus.esoteric.interpreter.abstractions.PropertyBasedExecutionEnvironment>;
 
 namespace WARP {
 
-	internal class Constants {
+	public class Constants {
 		internal class KeyWords {
 			internal const string Comparison = ":";
 			internal const string Pop = "!";
@@ -38,8 +39,10 @@ namespace WARP {
 			internal const string Jump = "^";
 			internal const string Label = "@";
 		}
-		internal const string RASName = "__RAS";
-	}
+        public const string RASName = "__RAS";
+        public const string CurrentBase = "__CIB";
+        public const string Builder = "__BLDR";
+    }
 
 	internal static class CommandFactory {
 
@@ -56,15 +59,21 @@ namespace WARP {
 
 	public class CommandBuilder : TrivialInterpreterBase<SimpleSourceCode, PropertyBasedExecutionEnvironment> {
 
-		private static Dictionary<string, Builder> mCommands = new Dictionary<string, Builder>();
-		private static Regex Expression;
-		private static Regex BoundVariableExpression;
-		private static Regex BoundVariableOrStackExpression;
-		private static Regex ObjectReference;
-		
-		internal static void Initialize(SharedObjects.Esoterica.IOWrapper wrapper) {
+		private Dictionary<string, Builder> mCommands = new Dictionary<string, Builder>();
+
+        private Regex Expression;
+		private Regex BoundVariableExpression;
+		private Regex BoundVariableOrStackExpression;
+		private Regex ObjectReference;
+
+        public CommandBuilder() {
+            Initialize();
+        }
+
+        public SharedObjects.Esoterica.IOWrapper Wrapper { get; set; }
+
+        public void Initialize() {
 			CreateExpressions();
-            WARPInputCommand.InteractionWrapper = wrapper;
             mCommands["="] = Builder.Create((state, source, stack) => Get<WARPAssignmentCommand>().Execute(state, source, stack), BoundVariableExpression);
 			mCommands[Constants.KeyWords.Addition] = Builder.Create((state, source, stack) => CreateMathProcessor((cur, expr) => cur + expr.AsNumeric(), Constants.KeyWords.Addition).Execute(state, source, stack), BoundVariableOrStackExpression);
 			mCommands[Constants.KeyWords.Subtraction] = Builder.Create((state, source, stack) => CreateMathProcessor((cur, expr) => cur - expr.AsNumeric(), Constants.KeyWords.Subtraction).Execute(state, source, stack), BoundVariableOrStackExpression);
@@ -77,9 +86,9 @@ namespace WARP {
 			mCommands["+"] = Builder.Create((state, source, stack) => WARPObject.CurrentRadix = Convert.ToInt32(stack.Pop<WARPObject>().AsNumeric()),
 				RegexBuilder.New().StartCaptureGroup("expr").AddCharacterClass("0-9A-Z").OneOrMore().EndCaptureGroup().EndMatching().ToRegex());
 			mCommands["]"] = Builder.Create((state, source, stack) => Get<WARPPopPushCommand>().Execute(state, source, stack), Expression);
-			mCommands[")"] = Builder.Create((state, source, stack) => wrapper.Write(stack.Pop<WARPObject>().AsString().Replace("\\n", System.Environment.NewLine)), Expression);
-			mCommands["("] = Builder.Create((state, source, stack) => wrapper.Write(stack.Pop<WARPObject>().AsCharacter()), Expression);
-			mCommands[","] = Builder.Create((state, source, stack) => Get<WARPInputCommand>().Execute(state, source, stack),
+			mCommands[")"] = Builder.Create((state, source, stack) => Wrapper.Write(stack.Pop<WARPObject>().AsString().Replace("\\n", System.Environment.NewLine)), Expression);
+			mCommands["("] = Builder.Create((state, source, stack) => Wrapper.Write(stack.Pop<WARPObject>().AsCharacter()), Expression);
+			mCommands[","] = Builder.Create((state, source, stack) => Get<WARPInputCommand>().WithWrapper(Wrapper).Execute(state, source, stack),
 				RegexBuilder.New().StartsWith().StartCaptureGroup("var").OneFrom(WARPInputCommand.Options).EndCaptureGroup().EndMatching().ToRegex());
 			mCommands["|"] = Builder.Create((state, source, stack) => state.PopExecutionEnvironment<PropertyBasedExecutionEnvironment>());
 			mCommands["'"] = Builder.Create((state, source, stack) => state.RotateExecutionEnvironment<PropertyBasedExecutionEnvironment>());
@@ -111,7 +120,7 @@ namespace WARP {
 			return CommandFactory.Get<WARPMathCommand>(() => new WARPMathCommand(f), qualifier);
 		}
 
-		private static void CreateExpressions() {
+		private void CreateExpressions() {
 			RegexBuilder.New()
 				.AddCharacterClass("a-z")
 				.BoundedRepetition(2)
@@ -157,11 +166,13 @@ namespace WARP {
 		}
 
 		public override BaseObject Gather(InterpreterState state) {
-			dynamic res = KeyAndBuilder(state, false);
-			return WARPCommand.Gather(state, res.Key, res.Builder);
+            Wrapper = state.GetExecutionEnvironment<PropertyBasedExecutionEnvironment>().ScratchPadAs<IOWrapper>(Constants.CurrentBase);
+            state.GetExecutionEnvironment<PropertyBasedExecutionEnvironment>().ScratchPad[Constants.Builder] = this;
+            dynamic res = KeyAndBuilder(state, false);
+            return WARPCommand.Gather(state, res.Key, res.Builder);
 		}
 
-		internal static dynamic KeyAndBuilder(InterpreterState state, bool advance = true) {
+		internal dynamic KeyAndBuilder(InterpreterState state, bool advance = true) {
 			dynamic result = new ExpandoObject();
 			if (advance) state.Source().Advance();
 			result.Key = state.Source().Current();

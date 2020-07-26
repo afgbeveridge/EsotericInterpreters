@@ -28,12 +28,14 @@ namespace WARP {
 		private const string Message = "WARP interpreter v 2.0: (c) 2013 Tony Beveridge, released under the MIT license";
 
 		static void Main(string[] args) {
-            CommandBuilder.Initialize(new ConsoleIOWrapper());
-            new CommandLineExecutor<SimpleSourceCode, PropertyBasedExecutionEnvironment>().Execute(Assembly.GetExecutingAssembly(), Message, args,
+            new CommandLineExecutor<SimpleSourceCode, PropertyBasedExecutionEnvironment>()
+                .Execute(typeof(CommandBuilder).Assembly, Message, args,
 				interp => {
-					PropertyBasedExecutionEnvironment.ScratchPad[Constants.RASName] =
+                    var env = interp.State.GetExecutionEnvironment<PropertyBasedExecutionEnvironment>();
+                    env.ScratchPad[Constants.RASName] =
 						new RandomAccessStack<WARPObject> { MaximumSize = Configuration.ConfigurationFor<int>("rasSize") };
-					PropertyBasedExecutionEnvironment.OnUnknownKey = env => new WARPObject();
+                    env.ScratchPad[Constants.CurrentBase] = new ConsoleIOWrapper();
+                    env.OnUnknownKey = e => new WARPObject();
 				}
 			);
 		}

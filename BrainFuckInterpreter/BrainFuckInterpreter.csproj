@@ -50,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Builders.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -58,6 +57,10 @@
     <ProjectReference Include="..\..\Common\Shared\Shared.csproj">
       <Project>{0af96056-4218-4c0d-95a3-39e555a77a22}</Project>
       <Name>Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BrainFuck.Language\BrainFuck.Language.csproj">
+      <Project>{ccf502d9-9219-44f0-a5f3-c98e6371ed07}</Project>
+      <Name>BrainFuck.Language</Name>
     </ProjectReference>
     <ProjectReference Include="..\Interpreter.Abstractions\Interpreter.Abstractions.csproj">
       <Project>{DCE8B622-081E-4617-980C-07C89988393E}</Project>

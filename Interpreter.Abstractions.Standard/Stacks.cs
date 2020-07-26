@@ -41,7 +41,7 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 			State = new List<BaseObject>();
 			Interferer = new NullInterferer();
             ScratchPad = new Dictionary<string, object>();
-        }
+		}
 
 		public BaseInterpreterStack Duplicate() {
 			Interferer.PreStackObjectAccess(this, 1);
@@ -104,6 +104,12 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 			return ToString(StackDumpDirective.Top);
 		}
 
+		public string ToString(StackDumpDirective depth) {
+			return "Stack size == " + State.Count + ", tos => " + Environment.NewLine +
+				(!State.Any() ? "<Empty>" :
+				(depth == StackDumpDirective.Top ? State.First().ToString() : String.Join("===>", State.Select(s => s.ToString() + Environment.NewLine).ToArray())));
+		}
+
         public Dictionary<string, object> ScratchPad { get; set; }
 
         public bool HasScratchPadEntry(string key) {
@@ -114,13 +120,7 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
             return (TObj)ScratchPad[key];
         }
 
-        public string ToString(StackDumpDirective depth) {
-			return "Stack size == " + State.Count + ", tos => " + Environment.NewLine +
-				(!State.Any() ? "<Empty>" :
-				(depth == StackDumpDirective.Top ? State.First().ToString() : String.Join("===>", State.Select(s => s.ToString() + Environment.NewLine).ToArray())));
-		}
-
-		protected List<BaseObject> State { get; set; }
+        protected List<BaseObject> State { get; set; }
 	}
 
 	public class RandomAccessStack<TCellType> : BaseInterpreterStack where TCellType : BaseObject, new() {
@@ -200,12 +200,11 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 
 		public TExeType GetExecutionEnvironment<TExeType>() where TExeType : BaseInterpreterStack { return (TExeType)GetStacks().Peek(); }
 
-		public void AddExecutionEnvironment<TExeType>(TExeType exeObject = default(TExeType)) 
-            where TExeType : BaseInterpreterStack, new() {
-                GetStacks().Push(exeObject ?? new TExeType());
-        }
+		public void AddExecutionEnvironment<TExeType>(TExeType exeObject = default(TExeType)) where TExeType : BaseInterpreterStack, new() { GetStacks().Push(exeObject ?? new TExeType()); }
 
-		public void PopExecutionEnvironment<TExeType>() where TExeType : BaseInterpreterStack { GetStacks().Pop(); }
+		public void PopExecutionEnvironment<TExeType>() where TExeType : BaseInterpreterStack {
+            GetStacks().Pop();
+        }
 
 		public void RotateExecutionEnvironment<TExeType>() where TExeType : BaseInterpreterStack, new() {
 			if (GetStacks().Count > 1) {

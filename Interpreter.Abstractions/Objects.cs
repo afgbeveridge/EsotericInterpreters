@@ -21,7 +21,7 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 
 	#region Base and canonical objects
 
-	public abstract class BaseObject : ICloneable  {
+	public abstract class BaseObject   {
 
 		public void Apply(InterpreterState state) {
 			Interpret(state);
@@ -322,11 +322,7 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 
 	public class PropertyBasedExecutionEnvironment : BaseInterpreterStack {
 
-		static PropertyBasedExecutionEnvironment() {
-			ScratchPad = new Dictionary<string, object>();
-		}
-
-		public static Func<PropertyBasedExecutionEnvironment, BaseObject> OnUnknownKey { get; set; }
+		public Func<PropertyBasedExecutionEnvironment, BaseObject> OnUnknownKey { get; set; }
 
 		public BaseObject this[string key] {
 			get {
@@ -339,18 +335,20 @@ namespace com.complexomnibus.esoteric.interpreter.abstractions {
 			}
 		}
 
-		private static Dictionary<string, BaseObject> mVariables = new Dictionary<string, BaseObject>();
+		private Dictionary<string, BaseObject> mVariables = new Dictionary<string, BaseObject>();
 
-		public static Dictionary<string, object> ScratchPad { get; set; }
-
-		public bool HasScratchPadEntry(string key) {
-			return ScratchPad.ContainsKey(key);
-		}
-
-		public void Reset() {
+        public void Reset() {
 			ScratchPad = new Dictionary<string, object>();
 			mVariables = new Dictionary<string, BaseObject>();
 		}
-	}
+
+        public PropertyBasedExecutionEnvironment Clone() {
+            return new PropertyBasedExecutionEnvironment {
+                OnUnknownKey = OnUnknownKey,
+                ScratchPad = ScratchPad,
+                mVariables = mVariables
+            };
+        }
+    }
 
 }

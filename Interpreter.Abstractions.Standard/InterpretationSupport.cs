@@ -17,27 +17,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Reflection;
-using com.complexomnibus.esoteric.interpreter.abstractions;
 
-namespace BrainFuckInterpreter {
+namespace com.complexomnibus.esoteric.interpreter.abstractions {
 
-	public class Program {
+	public class MutableTuple<T> {
+		
+		public MutableTuple() { }
+		
+		public MutableTuple(T x, T y, object ctx = null) {
+			X = x;
+			Y = y;
+			Context = ctx;
+		}
+		
+		public MutableTuple(MutableTuple<T> obj) {
+			X = obj.X;
+			Y = obj.Y;
+		}
+		
+		public T X { get; set; }
+		
+		public T Y { get; set; }
 
-		private const string Message = "BrainFuck interpreter v 0.0: (c) 2011-2013 Tony Beveridge, released under the MIT license";
-		private const int StandardMaxCellCount = 30000;
-
-		static void Main(string[] args) {
-			new CommandLineExecutor<SimpleSourceCode, RandomAccessStack<CanonicalNumber>>()
-                .Execute(typeof(CommandBuilder).Assembly, 
-                Message, 
-                args,
-				interp => {
-                    var env = interp.State.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>();
-                    env.ScratchPad[Constants.CurrentBase] = new ConsoleIOWrapper();
-                    interp.State.GetExecutionEnvironment<RandomAccessStack<CanonicalNumber>>().MaximumSize = StandardMaxCellCount;
-                }
-			);
+		public object Context { get; set; }
+		
+		public MutableTuple<T> Copy() {
+			return new MutableTuple<T>(X, Y, Context);
+		}
+		public override string ToString() {
+			return string.Concat("x = ", X, ", y = ", Y);
 		}
 	}
+
 }
